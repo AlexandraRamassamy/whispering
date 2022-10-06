@@ -10,8 +10,8 @@ import sounddevice as sd
 import websockets
 from whisper.audio import N_FRAMES, SAMPLE_RATE
 
-from whispering.schema import ParsedChunk, StdoutWriter
-from whispering.transcriber import Context
+from schema import ParsedChunk, StdoutWriter
+from transcriber import Context
 
 logger = getLogger(__name__)
 
