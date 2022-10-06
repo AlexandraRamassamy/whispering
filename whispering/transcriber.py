@@ -2,6 +2,7 @@
 
 from logging import getLogger
 from typing import Final, Iterator, Optional, Union
+import time
 
 import numpy as np
 import torch
@@ -117,8 +118,11 @@ class WhisperStreamingTranscriber:
     ) -> DecodingResult:
         assert len(ctx.temperatures) >= 1
         decode_result: Optional[DecodingResult] = None
-
+        #bêises...
+        start = time.time()
+        idx=1
         for t in ctx.temperatures:
+            logger.info("start", idx, time.time()-start)
             _decode_options: DecodingOptions = self._get_decoding_options(
                 t=t,
                 prompt=ctx.buffer_tokens,
@@ -126,28 +130,34 @@ class WhisperStreamingTranscriber:
                 patience=ctx.patience if t <= 0 else None,
                 best_of=ctx.best_of if t < 0 else None,
             )
+            logger.info("after options", idx, time.time()-start)
             logger.debug(f"DecodeOptions: {_decode_options}")
             decode_result = self.model.decode(
                 segment,
                 _decode_options,
             )  # type: ignore
+            logger.info("after decode", idx, time.time()-start)
             assert decode_result is not None
+            # des bêtises...
             needs_fallback: bool = False
             if (
                 ctx.compression_ratio_threshold is not None
                 and decode_result.compression_ratio > ctx.compression_ratio_threshold
             ):
+                logger.info("Here")
                 needs_fallback = True  # too repetitive
             if (
                 ctx.logprob_threshold is not None
                 and decode_result.avg_logprob < ctx.logprob_threshold
             ):
                 needs_fallback = True  # average log probability is too low
+                logger.info("Here2")
 
             if not needs_fallback:
                 break
 
         assert isinstance(decode_result, DecodingResult)
+        logger.info("before return", time.time()-start)
         return decode_result
 
     def _get_chunk(
