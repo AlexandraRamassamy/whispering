@@ -122,7 +122,7 @@ class WhisperStreamingTranscriber:
         start = time.time()
         idx=1
         for t in ctx.temperatures:
-            logger.info("start"+ str(idx) + str(time.time()-start))
+            logger.info("start, "+ str(idx) + ', '+ str(time.time()-start))
             _decode_options: DecodingOptions = self._get_decoding_options(
                 t=t,
                 prompt=ctx.buffer_tokens,
@@ -130,13 +130,13 @@ class WhisperStreamingTranscriber:
                 patience=ctx.patience if t <= 0 else None,
                 best_of=ctx.best_of if t < 0 else None,
             )
-            logger.info("after options"+ str(idx) + str(time.time()-start))
+            logger.info("after options, "+ str(idx) + ', '+ str(time.time()-start))
             logger.debug(f"DecodeOptions: {_decode_options}")
             decode_result = self.model.decode(
                 segment,
                 _decode_options,
             )  # type: ignore
-            logger.info("after decode" + str(idx) + str(time.time()-start))
+            logger.info("after decode, " + str(idx) + ', '+ str(time.time()-start))
             assert decode_result is not None
             # des bêtises...
             needs_fallback: bool = False
@@ -157,7 +157,7 @@ class WhisperStreamingTranscriber:
                 break
 
         assert isinstance(decode_result, DecodingResult)
-        logger.info("before return"+ str(idx) + str(time.time()-start))
+        logger.info("before return, "+ str(idx) + ', '+ str(time.time()-start))
         return decode_result
 
     def _get_chunk(
