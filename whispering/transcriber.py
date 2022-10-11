@@ -43,6 +43,8 @@ class WhisperStreamingTranscriber:
         self.config: Final[WhisperConfig] = config
         self.model: Final[Whisper] = load_model(config.model_name, device=config.device)
         # language specified
+        logger.info("multilingual")
+        logger.info(self.model.is_multilingual)
         if config.language != "multilanguage":
             self.tokenizer = get_tokenizer(
                 self.model.is_multilingual,
@@ -122,7 +124,6 @@ class WhisperStreamingTranscriber:
         start = time.time()
         idx=1
         for t in ctx.temperatures:
-            logger.info("start, "+ str(idx) + ', '+ str(time.time()-start))
             _decode_options: DecodingOptions = self._get_decoding_options(
                 t=t,
                 prompt=ctx.buffer_tokens,
@@ -130,13 +131,11 @@ class WhisperStreamingTranscriber:
                 patience=ctx.patience if t <= 0 else None,
                 best_of=ctx.best_of if t < 0 else None,
             )
-            logger.info("after options, "+ str(idx) + ', '+ str(time.time()-start))
             logger.debug(f"DecodeOptions: {_decode_options}")
             decode_result = self.model.decode(
                 segment,
                 _decode_options,
             )  # type: ignore
-            logger.info("after decode, " + str(idx) + ', '+ str(time.time()-start))
             assert decode_result is not None
             # des bêtises...
             needs_fallback: bool = False
@@ -144,14 +143,12 @@ class WhisperStreamingTranscriber:
                 ctx.compression_ratio_threshold is not None
                 and decode_result.compression_ratio > ctx.compression_ratio_threshold
             ):
-                logger.info("Here")
                 needs_fallback = True  # too repetitive
             if (
                 ctx.logprob_threshold is not None
                 and decode_result.avg_logprob < ctx.logprob_threshold
             ):
                 needs_fallback = True  # average log probability is too low
-                logger.info("Here2")
             idx +=1
             if not needs_fallback:
                 break
