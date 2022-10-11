@@ -43,11 +43,9 @@ class WhisperStreamingTranscriber:
         self.config: Final[WhisperConfig] = config
         self.model: Final[Whisper] = load_model(config.model_name, device=config.device)
         # language specified
-        logger.info("multilingual")
-        logger.info(self.model.is_multilingual)
         if config.language != "multilanguage":
             self.tokenizer = get_tokenizer(
-                not self.model.is_multilingual,
+                self.model.is_multilingual,
                 language=config.language,
                 task="transcribe",
             )
