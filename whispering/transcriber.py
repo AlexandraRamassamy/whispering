@@ -47,7 +47,7 @@ class WhisperStreamingTranscriber:
         logger.info(self.model.is_multilingual)
         if config.language != "multilanguage":
             self.tokenizer = get_tokenizer(
-                self.model.is_multilingual,
+                not self.model.is_multilingual,
                 language=config.language,
                 task="transcribe",
             )
