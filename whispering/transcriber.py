@@ -121,6 +121,7 @@ class WhisperStreamingTranscriber:
         #bêises...
         start = time.time()
         idx=1
+        logger.info("start, "+ str(idx) + ', '+ str(time.time()-start))
         for t in ctx.temperatures:
             _decode_options: DecodingOptions = self._get_decoding_options(
                 t=t,

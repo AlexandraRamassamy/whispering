@@ -43,8 +43,10 @@ async def serve_with_websocket_main(websocket):
             continue
 
         logger.debug(f"Message size: {len(message)}")
-        audio = np.frombuffer(message, dtype=np.float32)
+        audio = np.frombuffer(message, dtype=np.int32).astype(np.float32)
+        logger.info("after audio")
         if ctx is None:
+            logger.info("HERE")
             await websocket.send(
                 json.dumps(
                     {
@@ -53,10 +55,12 @@ async def serve_with_websocket_main(websocket):
                 )
             )
             return
+        logger.info('avant Chunk')
         for chunk in g_wsp.transcribe(
             audio=audio,  # type: ignore
             ctx=ctx,
         ):
+            logger.info("avant envoi")
             await websocket.send(chunk.json())
         idx += 1
 
