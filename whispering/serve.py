@@ -13,7 +13,7 @@ from transcriber import Context, WhisperStreamingTranscriber
 from scipy.interpolate import interp1d
 logger = getLogger(__name__)
 
-Jitsi = False
+Jitsi = True
 
 def resample(x, factor, kind='linear'):
     n = int(np.ceil(x.size / factor))
