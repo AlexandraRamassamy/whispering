@@ -10,9 +10,13 @@ import websockets
 from websockets.exceptions import ConnectionClosedOK
 
 from transcriber import Context, WhisperStreamingTranscriber
-
+from scipy.interpolate import interp1d
 logger = getLogger(__name__)
 
+def resample(x, factor, kind='linear'):
+    n = int(np.ceil(x.size / factor))
+    f = interp1d(np.linspace(0, 1, x.size), x, kind)
+    return f(np.linspace(0, 1, n))
 
 async def serve_with_websocket_main(websocket):
     global g_wsp
@@ -26,7 +30,7 @@ async def serve_with_websocket_main(websocket):
             break
 
         if isinstance(message, str):
-            logger.debug(f"Got str: {message}")
+            logger.debug(f"Got str: {message}")cd 
             d = json.loads(message)
             v = d.get("context")
             if v is not None:
@@ -44,6 +48,9 @@ async def serve_with_websocket_main(websocket):
 
         logger.debug(f"Message size: {len(message)}")
         audio = np.frombuffer(message, dtype=np.int32).astype(np.float32)
+        #audio = np.frombuffer(message, dtype=np.float32)
+        audio = resample(audio, 0.75)
+        audio = np.float32(audio/np.max(np.abs(audio)))
         logger.info("after audio")
         if ctx is None:
             logger.info("HERE")
