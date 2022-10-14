@@ -13,6 +13,8 @@ from transcriber import Context, WhisperStreamingTranscriber
 from scipy.interpolate import interp1d
 logger = getLogger(__name__)
 
+Jitsi = False
+
 def resample(x, factor, kind='linear'):
     n = int(np.ceil(x.size / factor))
     f = interp1d(np.linspace(0, 1, x.size), x, kind)
@@ -47,10 +49,14 @@ async def serve_with_websocket_main(websocket):
             continue
 
         logger.debug(f"Message size: {len(message)}")
-        audio = np.frombuffer(message, dtype=np.int32).astype(np.float32)
-        #audio = np.frombuffer(message, dtype=np.float32)
-        audio = resample(audio, 0.75)
-        audio = np.float32(audio/np.max(np.abs(audio)))
+        if Jitsi:
+
+            audio = np.frombuffer(message, dtype=np.int32).astype(np.float32)
+            audio = resample(audio, 0.75)
+            audio = np.float32(audio/np.max(np.abs(audio)))
+        else:
+            audio = np.frombuffer(message, dtype=np.float32)
+        
         logger.info("after audio")
         if ctx is None:
             logger.info("HERE")
