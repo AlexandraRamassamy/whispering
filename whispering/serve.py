@@ -30,7 +30,7 @@ async def serve_with_websocket_main(websocket):
             break
 
         if isinstance(message, str):
-            logger.debug(f"Got str: {message}")cd 
+            logger.debug(f"Got str: {message}")
             d = json.loads(message)
             v = d.get("context")
             if v is not None:
