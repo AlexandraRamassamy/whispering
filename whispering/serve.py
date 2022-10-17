@@ -3,7 +3,6 @@
 import asyncio
 import json
 from logging import getLogger
-from turtle import st
 from typing import Optional
 import time
 import numpy as np
@@ -11,7 +10,7 @@ import websockets
 from websockets.exceptions import ConnectionClosedOK
 
 from transcriber import Context, WhisperStreamingTranscriber
-from scipy.interpolate import interp1d
+
 logger = getLogger(__name__)
 
 Jitsi = False
