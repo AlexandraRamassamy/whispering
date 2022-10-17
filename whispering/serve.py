@@ -3,8 +3,9 @@
 import asyncio
 import json
 from logging import getLogger
+from turtle import st
 from typing import Optional
-
+import time
 import numpy as np
 import websockets
 from websockets.exceptions import ConnectionClosedOK
@@ -13,13 +14,7 @@ from transcriber import Context, WhisperStreamingTranscriber
 from scipy.interpolate import interp1d
 logger = getLogger(__name__)
 
-Jitsi = True
-
-def resample(x, factor, kind='linear'):
-    return(x)
-    n = int(np.ceil(x.size / factor))
-    f = interp1d(np.linspace(0, 1, x.size), x, kind)
-    return f(np.linspace(0, 1, n))
+Jitsi = False
 
 async def serve_with_websocket_main(websocket):
     global g_wsp
@@ -50,17 +45,20 @@ async def serve_with_websocket_main(websocket):
             continue
 
         logger.debug(f"Message size: {len(message)}")
+        start = time.time()
         if Jitsi:
+            
             logger.info("JITSI")
             audio = np.frombuffer(message, dtype=np.int32).astype(np.float32)
-            audio = resample(audio, 0.75)
             audio = np.float32(audio/np.max(np.abs(audio)))
+            logger.info("fin traitement")
+            logger.info(time.time()-start)
         else:
             audio = np.frombuffer(message, dtype=np.float32)
+            logger.info("fin traitement")
+            logger.info(time.time()-start)
         
-        logger.info("after audio")
         if ctx is None:
-            logger.info("HERE")
             await websocket.send(
                 json.dumps(
                     {
