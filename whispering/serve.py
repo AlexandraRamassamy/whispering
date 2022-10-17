@@ -16,6 +16,7 @@ logger = getLogger(__name__)
 Jitsi = True
 
 def resample(x, factor, kind='linear'):
+    return(x)
     n = int(np.ceil(x.size / factor))
     f = interp1d(np.linspace(0, 1, x.size), x, kind)
     return f(np.linspace(0, 1, n))
@@ -50,7 +51,7 @@ async def serve_with_websocket_main(websocket):
 
         logger.debug(f"Message size: {len(message)}")
         if Jitsi:
-
+            logger.info("JITSI")
             audio = np.frombuffer(message, dtype=np.int32).astype(np.float32)
             audio = resample(audio, 0.75)
             audio = np.float32(audio/np.max(np.abs(audio)))
